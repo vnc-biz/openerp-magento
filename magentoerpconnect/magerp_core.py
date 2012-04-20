@@ -215,6 +215,7 @@ class external_referential(magerp_osv.magerp_osv):
                 filter = [filters]
             #TODO call method should be not harcoded. Need refactoring
             ext_product_ids = attr_conn.call('ol_catalog_product.search', filter)
+            ext_product_ids = [x['product_id'] for x in ext_product_ids]
             storeview_obj = self.pool.get('magerp.storeviews')
 
             #get all instance storeviews
@@ -306,7 +307,7 @@ class external_referential(magerp_osv.magerp_osv):
             filters = {'customer_id': {'in': range(start, start + step)}}
             filters.update(self.SYNC_PARTNER_FILTERS)
             filter = [filters]
-            return attr_conn.call('ol_customer.search', filter)
+            return attr_conn.call('customer.list', filter)
 
         for referential in self.browse(cr, uid, ids, context):
             attr_conn = referential.external_connection(DEBUG)
