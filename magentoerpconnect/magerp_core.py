@@ -35,10 +35,13 @@ import os
 DEBUG = True
 TIMEOUT = 2
 
+import logging
+
 class external_referential(magerp_osv.magerp_osv):
     #This class stores instances of magento to which the ERP will connect, so you can connect OpenERP to multiple Magento installations (eg different Magento databases)
     _inherit = "external.referential"
 
+    _logger = logging.getLogger(__name__)
     SYNC_PRODUCT_FILTERS = {'status': {'=': 1}}
     SYNC_PARTNER_FILTERS = {}
     SYNC_PARTNER_STEP = 500
@@ -123,7 +126,6 @@ class external_referential(magerp_osv.magerp_osv):
     def sync_attribs(self, cr, uid, ids, context=None):
         attr_obj = self.pool.get('magerp.product_attributes')
         attr_set_obj = self.pool.get('magerp.product_attribute_set')
-        logger = netsvc.Logger()
         for referential in self.browse(cr, uid, ids, context=context):
             attr_conn = referential.external_connection(DEBUG, context=context)
             attrib_set_ids = attr_set_obj.search(cr, uid, [('referential_id', '=', referential.id)])
@@ -146,7 +148,7 @@ class external_referential(magerp_osv.magerp_osv):
                             attributes_imported.append(ext_id)
                             attr_obj.ext_import(import_cr, uid, [attribut], referential.id, defaults={'referential_id':referential.id}, context={'referential_id':referential.id})
                             import_cr.commit()
-                    logger.notifyChannel('ext synchro', netsvc.LOG_INFO, "All attributs for the attributs set id %s was succesfully imported" %(attr_set_id))
+                    self._logger.info("All attributs for the attributs set id %s was succesfully imported" %(attr_set_id))
                 #Relate attribute sets & attributes
                 mage_inp = {}
                 #Pass in {attribute_set_id:{attributes},attribute_set_id2:{attributes}}
@@ -264,7 +266,6 @@ class external_referential(magerp_osv.magerp_osv):
         return conn.call('catalog_product_link.types')
 
     def sync_images(self, cr, uid, ids, context=None):
-        logger = netsvc.Logger()
         product_obj = self.pool.get('product.product')
         image_obj = self.pool.get('product.images')
         import_cr = pooler.get_db(cr.dbname).cursor()

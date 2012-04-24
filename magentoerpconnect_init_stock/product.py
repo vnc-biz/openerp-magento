@@ -22,12 +22,11 @@
 import logging
 from osv import osv
 
-_logger = logging.getLogger(__name__)
-
-
 class product_product(osv.osv):
 
     _inherit = 'product.product'
+
+    _logger = logging.getLogger('product.product')
 
     def _magento_init_stock(self, cr, uid, product_id,
                             magento_id, connection, context=None):
@@ -40,7 +39,7 @@ class product_product(osv.osv):
             cr, uid, product, stock, shop, context=context)
 
         connection.call('product_stock.update', [magento_id, stock_vals])
-        _logger.info("Successfully initialized inventory "
+        self._logger.info("Successfully initialized inventory "
                      "options on product with SKU %s " %
                      (product.magento_sku,))
         return True

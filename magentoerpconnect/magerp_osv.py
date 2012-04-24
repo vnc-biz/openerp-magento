@@ -29,6 +29,7 @@ import urllib2
 import base64
 from tools.translate import _
 
+import logging
 
 #TODO clean error message, moreover it should be great to take a look on the magento python lib done by Sharoon : https://github.com/openlabs/magento
 
@@ -45,28 +46,26 @@ class Connection(object):
         self.password = password
         self.debug = False
         self.result = {}
-        self.logger = netsvc.Logger()
-
-    
+    _logger = logging.getLogger(__name__)
     def connect(self):
         if not self.location[-1] == '/':
             self.location += '/'
         if self.debug:
-            self.logger.notifyChannel(_("Magento Connection"), netsvc.LOG_INFO, _("Attempting connection with Settings:%s,%s,%s") % (self.location, self.username, self.password))
+            self._logger.info(_("Attempting connection with Settings:%s,%s,%s") % (self.location, self.username, self.password))
         self.ser = xmlrpclib.ServerProxy(self.location)
         for sleep_time in [1, 3, 6]:
             try:
                 self.session = self.ser.login(self.username, self.password)
                 if self.debug:
-                    self.logger.notifyChannel(_("Magento Connection"), netsvc.LOG_INFO, _("Login Successful"))
+                    self._logger.info(_("Login Successful"))
                 return True
             except IOError, e:
-                self.logger.notifyChannel(_("Magento Connection"), netsvc.LOG_ERROR, _("Error in connecting:%s") % (e))
-                self.logger.notifyChannel(_("Magento Call"), netsvc.LOG_WARNING, _("Webservice Failure, sleeping %s second before next attempt") % (sleep_time))
+                self._logger.error(_("Error in connecting:%s") % (e))
+                self._logger.warning(_("Webservice Failure, sleeping %s second before next attempt") % (sleep_time))
                 time.sleep(sleep_time)
             except Exception,e:
-                self.logger.notifyChannel(_("Magento Connection"), netsvc.LOG_ERROR, _("Error in connecting:%s") % (e))
-                self.logger.notifyChannel(_("Magento Call"), netsvc.LOG_WARNING, _("Webservice Failure, sleeping %s second before next attempt") % (sleep_time))
+                self._logger.error(_("Error in connecting:%s") % (e))
+                self._logger.warning(_("Webservice Failure, sleeping %s second before next attempt") % (sleep_time))
                 time.sleep(sleep_time)  
         raise osv.except_osv(_('User Error'), _('Error when try to connect to magento, are your sure that your login is right? Did openerp can access to your magento?'))
 
@@ -79,18 +78,18 @@ class Connection(object):
         for sleep_time in [1, 3, 6]:
             try:
                 if self.debug:
-                    self.logger.notifyChannel(_("Magento Connection"), netsvc.LOG_INFO, _("Calling Method:%s,Arguments:%s") % (method, arguments))
+                    self._logger.info(_("Calling Method:%s,Arguments:%s") % (method, arguments))
                 res = self.ser.call(self.session, method, arguments)
                 if self.debug:
                     if method=='catalog_product.list':
                         # the response of the method catalog_product.list can be very very long so it's better to see it only if debug log is activate
-                        self.logger.notifyChannel(_("Magento Connection"), netsvc.LOG_DEBUG, _("Query Returned:%s") % (res))
+                        self._logger.debug(_("Query Returned:%s") % (res))
                     else:
-                        self.logger.notifyChannel(_("Magento Connection"), netsvc.LOG_INFO, _("Query Returned:%s") % (res))
+                        self._logger.info(_("Query Returned:%s") % (res))
                 return res
             except IOError, e:
-                self.logger.notifyChannel(_("Magento Call"), netsvc.LOG_ERROR, _("Method: %s\nArguments:%s\nError:%s") % (method, arguments, e))
-                self.logger.notifyChannel(_("Magento Call"), netsvc.LOG_WARNING, _("Webservice Failure, sleeping %s second before next attempt") % (sleep_time))
+                self._logger.error(_("Method: %s\nArguments:%s\nError:%s") % (method, arguments, e))
+                self._logger.warning(_("Webservice Failure, sleeping %s second before next attempt") % (sleep_time))
                 time.sleep(sleep_time)
         raise
 

@@ -23,19 +23,20 @@ from osv import fields,osv
 from tools.translate import _
 import netsvc
 
+import logging
+
 class stock_picking(osv.osv):
     _inherit = "stock.picking"
 
-
+    _logger = logging.getLogger(__name__)
     def create_ext_complete_shipping(self, cr, uid, id, external_referential_id, magento_incrementid, context=None):
         if context is None: context = {}
-        logger = netsvc.Logger()
         conn = context.get('conn_obj', False)
         ext_shipping_id = False
         try:
             ext_shipping_id = conn.call('sales_order_shipment.create', [magento_incrementid, {}, _("Shipping Created"), True, True])
         except Exception, e:
-            logger.notifyChannel(_("Magento Call"), netsvc.LOG_ERROR, _("The picking from the order %s can't be created on Magento, please attach it manually, %s") % (magento_incrementid, e))
+            self._logger.error(_("The picking from the order %s can't be created on Magento, please attach it manually, %s") % (magento_incrementid, e))
         return ext_shipping_id
     
     def add_picking_line(self, cr, uid, lines, picking_line, context=None):
@@ -49,7 +50,6 @@ class stock_picking(osv.osv):
 
     def create_ext_partial_shipping(self, cr, uid, id, external_referential_id, magento_incrementid, context=None):
         if context is None: context = {}
-        logger = netsvc.Logger()
         conn = context.get('conn_obj', False)
         ext_shipping_id = False
         order_items = conn.call('sales_order.info', [magento_incrementid])['items']
@@ -72,7 +72,7 @@ class stock_picking(osv.osv):
         try:
             ext_shipping_id = conn.call('sales_order_shipment.create', [magento_incrementid, item_qty, _("Shipping Created"), True, True])
         except Exception, e:
-            logger.notifyChannel(_("Magento Call"), netsvc.LOG_ERROR, _("The picking from the order %s can't be created on Magento, please attach it manually, %s") % (magento_incrementid, e))
+            self._logger.error(_("The picking from the order %s can't be created on Magento, please attach it manually, %s") % (magento_incrementid, e))
         return ext_shipping_id 
 
 
@@ -98,7 +98,6 @@ class stock_picking(osv.osv):
 
     def add_ext_tracking_reference(self, cr, uid, id, carrier_id, ext_shipping_id, context=None):
         if context is None: context = {}
-        logger = netsvc.Logger()
         conn = context.get('conn_obj', False)
         carrier = self.pool.get('delivery.carrier').read(cr, uid, carrier_id, ['magento_carrier_code', 'magento_tracking_title'], context)
         
@@ -109,7 +108,7 @@ class stock_picking(osv.osv):
             
         res = conn.call('sales_order_shipment.addTrack', [ext_shipping_id, carrier['magento_carrier_code'], carrier['magento_tracking_title'] or '', carrier_tracking_ref or ''])
         if res:
-            logger.notifyChannel('ext synchro', netsvc.LOG_INFO, "Successfully adding a tracking reference to the shipping with OpenERP id %s and ext id %s in external sale system" % (id, ext_shipping_id))
+            self._logger.info("Successfully adding a tracking reference to the shipping with OpenERP id %s and ext id %s in external sale system" % (id, ext_shipping_id))
         return True
 
 stock_picking()

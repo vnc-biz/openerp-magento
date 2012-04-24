@@ -21,7 +21,7 @@
 
 from osv import osv, fields
 import netsvc
-
+import logging
 class product_variant_dimension_type(osv.osv):
     
     _inherit = "product.variant.dimension.type"
@@ -49,8 +49,10 @@ class product_variant_dimension_option(osv.osv):
 product_variant_dimension_option()
 
 class product_product(osv.osv):
-    
+
     _inherit = "product.product"
+
+    _logger = logging.getLogger('product.product')
 
     def get_last_update_date(self, cr, uid, product_read, context=None):
         #A configurable product have to be updated if a variant is added
@@ -106,7 +108,7 @@ class product_product(osv.osv):
             for variant in self.browse(cr, uid, variant_ids, context=context):
                 if variant.magento_exportable:
                     if not self.oeid_to_extid(cr, uid, variant.id, shop.referential_id.id):
-                        conn.logger.notifyChannel('ext synchro', netsvc.LOG_INFO, "Force the export of the product %s as it was not exported before" %(id))
+                        conn.self._logger.info("Force the export of the product %s as it was not exported before" %(id))
                         self.ext_export(cr, uid, [variant.id], external_referential_ids, defaults, context)
         return True
 
