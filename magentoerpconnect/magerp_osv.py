@@ -79,6 +79,9 @@ class Connection(object):
             try:
                 if self.debug:
                     self._logger.info(_("Calling Method:%s,Arguments:%s") % (method, arguments))
+                import logging
+                _logger = logging.getLogger(__name__)
+                _logger.info("%s :::  %s "%( method, arguments))
                 res = self.ser.call(self.session, method, arguments)
                 if self.debug:
                     if method=='catalog_product.list':
@@ -276,8 +279,14 @@ class magerp_osv(osv.osv):
             get_method = self.pool.get('external.mapping').read(cr, uid, mapping_id, ['external_get_method']).get('external_get_method',False)
             rec_data = [conn.call(get_method, [id])]
             rec_result = self.ext_import(cr, uid, rec_data, external_referential_id, defaults, context)
-            result['create_ids'].append(rec_result['create_ids'])
-            result['write_ids'].append(rec_result['write_ids'])
+            if isinstance(rec_result.get('create_ids',False),(list,tuple)):
+               result['create_ids'].extend(rec_result['create_ids'])
+            else:
+                result['create_ids'].append(rec_result['create_ids'])
+            if isinstance(rec_result.get('write_ids',False),(list,tuple)):
+                result['write_ids'].extend(rec_result['write_ids'])
+            else:
+                result['write_ids'].append(rec_result['write_ids'])
             # and let the import continue, because it will be imported on the next import
         return result
 

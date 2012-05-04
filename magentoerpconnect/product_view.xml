@@ -251,6 +251,30 @@
 					<xpath expr="/form/notebook" position="before">
 						<field name="magento_exportable" select="2"/>
 					</xpath>
+					<xpath expr="/form/notebook" position="inside">
+						<page string="TierPrice">
+							<field name="tier_price" colspan="4" nolabel="1">
+								<tree string="TierPrice">
+									<field name="web_scope"/>
+									<field name="group_scope"/>
+									<field name="website_id" attrs="{'readonly': [('web_scope','=', 'all')]}"/>
+									<field name="cust_group"/>
+									<field name="price"/>
+									<field name="price_qty"/>
+									<field name="referential_id"/>
+								</tree>
+								<form strint="TierPrice">
+									<field name="web_scope"/>
+									<field name="group_scope"/>
+									<field name="website_id"/>
+									<field name="cust_group"/>
+									<field name="price"/>
+									<field name="price_qty"/>
+									<field name="referential_id"/>
+								</form>
+							</field>
+						</page>
+					</xpath>
 				</data>
 			</field>
 		</record>

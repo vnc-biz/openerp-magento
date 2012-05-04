@@ -321,20 +321,20 @@ class external_referential(magerp_osv.magerp_osv):
             try:
                 while ext_customer_ids:
                     for ext_customer_id in ext_customer_ids:
-                        customer_info = attr_conn.call('customer.info', [ext_customer_id])
-                        customer_address_info = attr_conn.call('customer_address.list', [ext_customer_id])
+                        customer_info = attr_conn.call('customer.info', [ext_customer_id['customer_id']])
+                        customer_address_info = attr_conn.call('customer_address.list', [ext_customer_id['customer_id']])
 
                         address_info = False
                         if customer_address_info:
                             address_info = customer_address_info[0]
-                            address_info['customer_id'] = ext_customer_id
+                            address_info['customer_id'] = ext_customer_id['customer_id']
                             address_info['email'] = customer_info['email']
 
                         self.pool.get('res.partner').ext_import(import_cr, uid, [customer_info], referential.id, context=context)
                         if address_info:
                             self.pool.get('res.partner.address').ext_import(import_cr, uid, [address_info], referential.id, context=context)
 
-                        last_imported_id = int(ext_customer_id)
+                        last_imported_id = int(ext_customer_id['customer_id'])
                         self.write(import_cr, uid, referential.id, {'last_imported_partner_id': last_imported_id}, context=context)
                         import_cr.commit()
                     ext_customer_ids = next_partners(attr_conn, last_imported_id + 1, self.SYNC_PARTNER_STEP)
