@@ -57,6 +57,7 @@ class delivery_carrier(osv.osv):
         carrier = self.read(
             cr, uid, id, ['magento_carrier_code', 'name'], context=context)
         if not carrier['magento_carrier_code'] in mag_carrier.keys():
+            return False
             raise osv.except_osv(
                 _("Error"),
                 _("The carrier %s doesn't have a magento_code valid !"

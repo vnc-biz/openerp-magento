@@ -87,11 +87,11 @@ class stock_picking(osv.osv):
         carrier_id = self.pool.get('stock.picking').read(cr, uid, id, ['carrier_id'], context)['carrier_id']
         if carrier_id:
             carrier_id = carrier_id[0]
-            self.pool.get('delivery.carrier').check_ext_carrier_reference(cr, uid, carrier_id, magento_incrementid, context)
+            flg = self.pool.get('delivery.carrier').check_ext_carrier_reference(cr, uid, carrier_id, magento_incrementid, context)
 
         ext_shipping_id = eval('self.create_ext_' + picking_type + '_shipping(cr, uid, id, external_referential_id, magento_incrementid, context)')
 
-        if ext_shipping_id and carrier_id:
+        if ext_shipping_id and carrier_id and flg:
             self.add_ext_tracking_reference(cr, uid, id, carrier_id, ext_shipping_id, context)
         return ext_shipping_id
 
