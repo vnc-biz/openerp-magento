@@ -37,7 +37,10 @@ class product_product(osv.osv):
         product = self.browse(cr, uid, product_id, context=context)
         stock_vals = self._prepare_inventory_magento_vals(
             cr, uid, product, stock, shop, context=context)
-
+        if product.product_type == 'bundle':
+            stock_vals['manage_stock'] = 1
+            stock_vals['use_config_manage_stock'] = 1
+            stock_vals['is_in_stock'] = 1
         connection.call('product_stock.update', [magento_id, stock_vals])
         self._logger.info("Successfully initialized inventory "
                      "options on product with SKU %s " %

@@ -82,6 +82,12 @@ class Connection(object):
                 import logging
                 _logger = logging.getLogger(__name__)
                 _logger.info("%s :::  %s "%( method, arguments))
+                for arg in arguments:
+                    if not isinstance(arg,dict):
+                        continue
+                    if arg.get('type_id','') == 'bundle':
+                        arg['weight_type'] = 0
+                        arg['sku_type'] = 0
                 res = self.ser.call(self.session, method, arguments)
                 if self.debug:
                     if method=='catalog_product.list':
