@@ -1,0 +1,103 @@
+Source: openerp-magento
+Section: net
+Priority: optional
+Maintainer: Enrico Weigelt, metux ITS <weigelt@metux.de>
+Build-Depends: debhelper (>= 7.0.50~), python, rsync
+Standards-Version: 3.9.1
+
+
+Package: openerp-addons-magentoerpconnect
+Section: net
+Architecture: all
+Depends:  openerp-addons-base,
+  openerp-addons-product,
+  openerp-addons-product-m2mcategories,
+  openerp-addons-delivery,
+  openerp-addons-base-sale-multichannels,
+  openerp-addons-product-images-olbs,
+  openerp-addons-product-links,
+  ${misc:Depends}
+Description: OpenERP module: magentoerpconnect
+  Magento E-commerce management
+
+Package: openerp-addons-magentoerpconnect-bundle
+Section: net
+Architecture: all
+Depends:  openerp-addons-magentoerpconnect,
+  openerp-addons-sale-bundle-product,
+  ${misc:Depends}
+Description: OpenERP module: magentoerpconnect_bundle
+  Module to extend the module magentoerpconnect, with it you will be able to create bundle product in magento directly from Openerp.
+  .
+  Enjoy it !
+  .
+  This module is not compatible with "magentoerpconnect_bundle_split" as it does not handle the bundles the same way.
+  magentoerpconnect_bundle: products configurator for bundles with production orders for sub-items
+  magentoerpconnect_bundle_split: sub-items are managed as normal products in OpenERP, no configurator
+
+Package: openerp-addons-magentoerpconnect-bundle-split
+Section: net
+Architecture: all
+Depends:  openerp-addons-magentoerpconnect,
+  ${misc:Depends}
+Description: OpenERP module: magentoerpconnect_bundle_split
+  Module to extend the module magentoerpconnect.
+  Simple management of bundle items imported from Magento.
+  .
+  Each item choosed in a bundle is imported as a sale order line, so you are able to have correct margin and products turnover.
+  .
+  The bundle product is imported with a price of 0.0 and is a service.
+  .
+  For the shipment, the first item which was part of the bundle create the full shipment on Magento (limitation because Magento wait for the bundle product).
+  The side effect is that the order will be marked as fully shipped on Magento even if the packing is sent in 2 times in OpenERP.
+  .
+  This module is not compatible with "magentoerpconnect_bundle" as it does not handle the bundles the same way.
+  magentoerpconnect_bundle: products configurator for bundles with production orders for sub-items
+  magentoerpconnect_bundle_split: sub-items are managed as normal products in OpenERP, no configurator
+
+Package: openerp-addons-magentoerpconnect-init-stock
+Section: net
+Architecture: all
+Depends:  openerp-addons-magentoerpconnect,
+  ${misc:Depends}
+Description: OpenERP module: magentoerpconnect_init_stock
+  Simple module to add update the stock inventory values and configuration on
+  Magento right after a product is created on Magento.
+  .
+  Warning: this needs more resources and on an export of the catalog,
+  the stock inventory update for new products will be done twice.
+  .
+  The benefits is that the new created products have the correct
+  configuration directly.
+
+Package: openerp-addons-magentoerpconnect-product-variant
+Section: net
+Architecture: all
+Depends:  openerp-addons-magentoerpconnect,
+  openerp-addons-product-variant-multi,
+  ${misc:Depends}
+Description: OpenERP module: magentoerpconnect_product_variant
+  Module to extend the module magentoerpconnect, with it you will be able to create variant of product in magento directly from Openerp. Enjoy it !
+  NB: in magento the variant are called 'configurable product'
+
+Package: openerp-addons-magento-product-auto-sku
+Section: net
+Architecture: all
+Depends:  openerp-addons-base,
+  openerp-addons-product,
+  openerp-addons-magentoerpconnect,
+  ${misc:Depends}
+Description: OpenERP module: magento_product_auto_sku
+  Auto incrementation of the Magento SKU column on products
+
+Package: openerp-addons-magento-sku-is-code
+Section: net
+Architecture: all
+Depends:  openerp-addons-base,
+  openerp-addons-product,
+  openerp-addons-magentoerpconnect,
+  ${misc:Depends}
+Description: OpenERP module: magento_sku_is_code
+  Use product's code as SKU for Magento.
+  Once exported to Magento, the Magento SKU is not changed, even if you change the product's code.
+
